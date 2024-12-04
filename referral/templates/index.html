@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+{% block title %}Главная{% endblock %}
+
+{% block content %}
+<h1 class="text-center mb-4">Реферальная система</h1>
+{% if user.is_authenticated %}
+  <p class="text-center"><strong>{{ user.phone_number }}</strong></p>
+  <h2 class="text-center mt-4">Список пользователей:</h2>
+  <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4 mt-3">
+    {% for entry in page_obj %}
+      <div class="col">
+        <div class="card h-100 shadow-sm">
+          <div class="card-body">
+            <h5 class="card-title">{{ entry.user.phone_number }}</h5>
+            <p class="card-text">
+              <strong>Инвайт-код:</strong> {{ entry.invite_code }}<br>
+              <strong>Активировано инвайтов:</strong> {{ entry.activated_invites_count }}
+            </p>
+          </div>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+  {% include "includes/paginator.html" with page_obj=page_obj %}
+{% else %}
+  <p class="text-center">Добро пожаловать!</p>
+{% endif %}
+{% endblock %}

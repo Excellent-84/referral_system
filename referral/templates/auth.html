@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+{% block title %}Авторизация{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center align-items-center flex-column" style="min-height: 80vh;">
+  <div class="card shadow-sm p-4" style="width: 100%; max-width: 400px;">
+    <h2 class="text-center mb-4">Введите номер телефона</h2>
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group mb-3">
+        <label for="id_phone">Номер телефона:</label>
+        <input
+          type="text"
+          name="phone"
+          id="id_phone"
+          class="form-control"
+          placeholder="Например, +79001234567"
+          value="{{ form.phone.value|default:'' }}">
+        {% for error in form.phone.errors %}
+          <div class="text-danger mt-1">{{ error }}</div>
+        {% endfor %}
+      </div>
+      <button type="submit" class="btn btn-primary w-100">Отправить код</button>
+    </form>
+  </div>
+</div>
+{% endblock %}

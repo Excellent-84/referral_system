@@ -1,37 +1,42 @@
 from django.contrib.auth.models import AbstractBaseUser
 from django.db import models
+from phonenumbers import is_valid_number, parse
 
 from .managers import UserManager
+from .utils import generate_invite_code
 
 
 class User(AbstractBaseUser):
-    phone_number = models.CharField(
-        'Номер телефона', max_length=12, unique=True
-    )
+    phone_number = models.CharField(max_length=12, unique=True)
     invite_code = models.CharField(
-        'Инвайт-код', max_length=6, unique=True
+        max_length=6, unique=True, default=generate_invite_code
     )
-    referred_users = models.ManyToManyField(
+    referred_by = models.ForeignKey(
         'self',
-        symmetrical=False,
+        null=True,
         blank=True,
-        related_name='referrals',
-        verbose_name='Активация инвайт-кода'
+        on_delete=models.SET_NULL,
+        related_name='referrals'
     )
-    is_admin = models.BooleanField('Администратор', default=False)
-
-    USERNAME_FIELD = 'phone_number'
-    REQUIRED_FIELDS = []
+    is_active = models.BooleanField(default=True)
+    is_admin = models.BooleanField(default=False)
 
     objects = UserManager()
 
+    USERNAME_FIELD = 'phone_number'
+
     class Meta:
+        ordering = ('-id',)
         verbose_name = 'Пользователь'
         verbose_name_plural = 'Пользователи'
 
     def __str__(self):
         return self.phone_number
 
-    @property
-    def is_staff(self):
-        return self.is_admin
+    @staticmethod
+    def validate_phone_number(phone_number):
+        try:
+            parsed_phone = parse(phone_number)
+            return is_valid_number(parsed_phone)
+        except Exception:
+            return False

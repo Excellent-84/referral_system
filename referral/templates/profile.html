@@ -1,0 +1,51 @@
+{% extends "base.html" %}
+{% block title %}Профиль{% endblock %}
+
+{% block content %}
+<div class="d-flex justify-content-center flex-column align-items-center" style="min-height: 80vh;">
+  <div class="card shadow-sm p-4" style="width: 100%; max-width: 600px;">
+    <h2 class="text-center mb-4">Ваш профиль</h2>
+    <div>
+      <p><strong>Номер телефона:</strong> {{ user.phone_number }}</p>
+      <p><strong>Инвайт-код:</strong> {{ user.invite_code }}</p>
+      <p><strong>Количество рефералов:</strong> {{ referrals_count }}</p>
+    </div>
+    <hr>
+    <h5>Список ваших рефералов:</h5>
+    <ul class="list-group mb-4">
+      {% for referral in page_obj %}
+        <li class="list-group-item">{{ referral.phone_number }}</li>
+      {% empty %}
+        <li class="list-group-item">Пока нет рефералов</li>
+      {% endfor %}
+    </ul>
+    {% include "includes/paginator.html" with page_obj=page_obj %}
+
+    {% if invite_code_activated %}
+      <p><strong>Активированный инвайт-код:</strong> {{ activated_invite_code }}</p>
+      <form method="post">
+        {% csrf_token %}
+        <button type="submit" name="remove_invite_code" class="btn btn-danger w-100">Удалить инвайт-код</button>
+      </form>
+    {% else %}
+      <form method="post">
+        {% csrf_token %}
+        <div class="mb-3">
+          <label for="invite_code" class="form-label">Введите инвайт-код:</label>
+          <input type="text" name="invite_code" id="invite_code" class="form-control" placeholder="Введите код" value="{{ form.invite_code.value|default:'' }}">
+          {% for error in form.invite_code.errors %}
+            <div class="text-danger mt-1">{{ error }}</div>
+          {% endfor %}
+        </div>
+        <div class="d-flex justify-content-between">
+          <button type="submit" class="btn btn-primary">Активировать</button>
+        </div>
+      </form>
+    {% endif %}
+
+    {% if message %}
+      <div class="alert alert-info mt-3">{{ message }}</div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}
